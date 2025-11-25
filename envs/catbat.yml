@@ -1,0 +1,6 @@
+name: catbat_env
+channels:
+  - bioconda
+dependencies:
+  - diamond=2.1.8
+  - cat

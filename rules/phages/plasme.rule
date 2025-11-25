@@ -1,0 +1,28 @@
+rule run_plasme:
+    input:
+        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+    output:
+        out_dir = "plasme/{sample}/{sample}_plasmids.fasta",
+        tmp_dir = directory("plasme/{sample}/tmp"),
+        donefile = "plasme/{sample}/plasme.done"
+    params:
+        plasme_db = config["plasme"]["db"],
+        plasme_bin = config["plasme"]["bin"]
+    threads: 
+        config["plasme"]["threads"]
+    resources:
+        mem_mb = config["plasme"]["mem_mb"],
+        runtime = config["plasme"]["runtime"]
+    conda: f"{env_dir}/plasme.yml"
+    benchmark: "plasme/benchmarks/{sample}_plasme.txt"
+    shell:
+        """
+        python {params.plasme_bin}/PLASMe.py {input.fasta} \
+                {output.out_dir} \
+                -d {params.plasme_db} \
+                -t {threads} \
+                --temp {output.tmp_dir}
+
+		touch {output.donefile}
+        """
+

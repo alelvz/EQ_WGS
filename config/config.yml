@@ -1,0 +1,107 @@
+#Added phabox2 config and updated env_dir path
+
+env_dir: "/ibex/scratch/projects/c2014/alelopezv/EmptyQuarter_WGS/envs"
+tmp_dir: "/tmp"
+src_dir: "/home/x_arbasm/repos/EmptyQuarter_WGS/scripts"
+
+project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies"
+assembly_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/final_assemblies"
+assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/tables/all_sample_fasta.tsv"
+
+#modify to include in assembly_table
+phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/phage_prediction/summary_samples.tsv"
+
+mapping_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/remapping"
+taxa_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/taxonomy_test"
+binning_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/binning"
+
+
+phages_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/phage_prediction"
+
+genomad:
+    db_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/genomad_db"
+    threads: 8
+    runtime: 1440
+    mem_mb: 100000
+
+phabox2:
+    db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/phabox_db_v2"
+    mags: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/binning/dereplication/dereplicated_genomes"
+    threads: 12
+    runtime: 2160
+    mem_mb: 150000
+    min_len: 1000
+
+virsorter2:
+    db: "/ibex/sw/rl9c/virsorter2/2.2.4/rl9_conda3/db"
+    threads: 16
+    runtime: 3600
+    mem_mb: 80000
+    min_len: 1000
+    
+vibrant:
+    db: "/ibex/sw/rl9c/virsorter2/2.2.4/rl9_conda3/db"
+    threads: 16
+    runtime: 3600
+    mem_mb: 80000
+    min_len: 1000
+
+plasme:
+    bin: "/ibex/scratch/projects/c2014/alelopezv/EmptyQuarter_WGS/scripts/PLASMe"
+    db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/plasme/DB"
+    threads: 8
+    runtime: 1440
+    mem_mb: 64000
+
+kraken2:
+  db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/kraken"
+  threads: 24
+
+taxonkit:
+  db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/taxonkit"
+
+catbat:
+  threads: 24
+  db_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/cat/20231120_CAT_gtdb/db"
+  tax_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/cat/20231120_CAT_gtdb/tax"
+
+binning:
+  min_contig_length: 1500 ## Required by metabat2
+
+concoct:
+    threads: 40
+    read_length: 150
+    contig_split_length: 1000
+
+metabat2:
+    threads: 24
+    
+maxbin2:
+    threads: 24
+    mem_gb: "100GB"
+
+semibin:
+    threads: 24
+    environment_type: "soil"
+
+drep:
+    threads: 36 
+    mem_mb: 500000
+    runtime: 7200
+    completeness: 75
+    contamination: 25
+    strain_heterogeneity_weight: 1
+    P_ani: 0.9
+    S_ani: 0.9
+
+bakta:
+    db_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/bakta/db"
+    custom_dbs:  ## Can only include protein databases
+        card: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/protein_fasta_all-forBakta.fasta"
+        plant_host: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/phi-base_current-forBakta.fasta"
+    threads: 12
+    mem_mb: 120000
+    runtime: 4320
+
+magscot:
+    folder: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/magscot"

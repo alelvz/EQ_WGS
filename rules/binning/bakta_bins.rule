@@ -1,0 +1,44 @@
+rule prepare_custom_bakta_db:
+    output:
+        custom_db = temp("bakta_derep_bins/custom_proteins.fasta")
+    params:
+        custom_dbs = " ".join(config['bakta']['custom_dbs'].values()) if config['bakta']['custom_dbs'] else None
+    shell:
+        """
+        if [ ! -z "{params.custom_dbs}" ]; then
+            cat {params.custom_dbs} > {output.custom_db}
+        else
+            touch {output.custom_db}  # Create an empty file to avoid errors
+        fi
+        """
+
+rule bakta_annotation:
+    input:
+        bin_fasta = lambda wildcards: bins_index[wildcards.bin_id],
+    output:
+        out_dir = directory("bakta_derep_bins/{bin_id}"),
+        out_file = "bakta_derep_bins/{bin_id}/{bin_id}.txt"
+    params: 
+        db_path=config['bakta']['db_path'],
+        custom_db = "bakta_derep_bins/custom_proteins.fasta"
+    threads: config['bakta']['threads']
+    resources: 
+        runtime = config['bakta']['runtime'],
+        mem_mb = config['bakta']['mem_mb']
+    conda: f"{env_dir}/bakta_env.yml"
+    benchmark: "bakta_derep_bins/benchmarks/{bin_id}_bakta_annotation.txt"
+    log: "bakta_derep_bins/logs/{bin_id}_bakta_annotation.txt"
+    shell: 
+        """ 
+        PROTEIN_ARG=""
+        if [ -s {params.custom_db} ]; then
+            PROTEIN_ARG="--proteins {params.custom_db}"
+        fi
+
+        bakta {input.bin_fasta} \
+		      --force \
+			  --db {params.db_path} $PROTEIN_ARG \
+              --output {output.out_dir}/ \
+			  --prefix {wildcards.bin_id} -t {threads} \
+              --keep-contig-headers --skip-plot
+        """

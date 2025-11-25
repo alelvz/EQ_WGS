@@ -1,0 +1,14 @@
+rule merge_tools:
+    input:
+        virsorter = "virsorter/{sample}/final-viral-score.tsv",
+        phabox = "phabox/{sample}/final_prediction/phamer_prediction.tsv",
+        genomad_virus = "genomad/{sample}/all_prokaryotic_seqs_summary/all_prokaryotic_seqs_virus_summary.tsv",
+        genomad_plasmid = "genomad/{sample}/all_prokaryotic_seqs_summary/all_prokaryotic_seqs_plasmid_summary.tsv",
+        deepmicroclass = "../binning/{sample}/DeepMicroClass/{sample}_final.contigs.fa_pred_one-hot_hybrid.tsv",
+        plasme = "plasme/{sample}/{sample}_plasmids.fasta_report.csv"
+    output:
+        "summary/{sample}_pred_analysis.tsv"
+    shell: 
+        """
+        python3 scripts/merge.py --sample {wildcards.sample}
+        """

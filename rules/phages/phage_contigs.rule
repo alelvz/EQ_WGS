@@ -1,0 +1,16 @@
+rule extract_phage_contigs:
+    input:
+        summary = "summary/{sample}_pred_analysis.tsv",
+        assembly = lambda wildcards: assembly_dict[wildcards.sample]
+    output:
+        "phage_contigs/{sample}_phage_contigs.fa"
+    params:
+        sample = "{sample}"
+    shell:
+        """
+        python scripts/extract_phage_contigs.py \
+            --sample {params.sample} \
+            --summary {input.summary} \
+            --assembly {input.assembly} \
+            --output {output}
+        """

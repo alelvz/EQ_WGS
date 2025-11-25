@@ -1,0 +1,81 @@
+rule fix_fasta_headers:
+    input: 
+        bin_folder = f"{mags_dir}"
+    output:
+        out_dir = directory("{mags_dir}/fixed_fasta")
+    shadow: "shallow"
+    resources:
+        runtime = 1440,
+        mem_mb = 16000
+    shell:
+        """
+        mkdir -p {output.out_dir}
+
+        Generate new fasta files without spaces in the header
+        for fasta in {input.bin_folder}/*.fasta; do
+            base=$(basename "$fasta" .fasta)
+           cat "$fasta" | sed -e 's/> />/g' > "{output.out_dir}/${{base}}.fasta"
+        done
+        """
+
+rule catbat_classification:
+    input:
+        bin_fasta = lambda wildcards: bins_index[wildcards.bin_id]
+    output:
+        prefix = "taxonomy/{bin_id}.BAT",
+        #bin_classification = "taxonomy/{bin_id}.BAT.bin2classification.txt"
+        donefile = "taxonomy/{bin_id}.BAT.done" 
+    params: 
+        db_path=config['catbat']['db_path'],
+        tx_path=config['catbat']['tax_path']
+    conda: f"{env_dir}/catbat_env.yml"
+    shadow: "shallow"
+    resources:
+        runtime = 1440,
+        mem_mb = 250000
+    threads: 24
+    benchmark: "taxonomy/benchmarks/{bin_id}_bat_annotation.txt"
+    log: "taxonomy/benchmarks/logs/{bin_id}_bat_annotation.txt"
+    shell: 
+        """ 
+        mkdir -p dereplication/taxonomy
+
+	    CAT_pack bins -b {input.bin_fasta} \
+					  -d {params.db_path} \
+					  -t {params.tx_path} \
+					  --nproc {threads} \
+					  -o {output.prefix} \
+					  --force 
+		touch {output.donefile}
+
+        """
+
+# rule catbat_summary:
+#     input:
+#         donefile = "catbat/bat.done",
+#         bin_classification = "catbat/BAT.bin2classification.txt"
+#     output:
+#         bin_classification_names_added = "catbat/BAT.bin2classification.names_added.txt",
+#         donefile = "catbat/bat_summary.done"
+#     params: 
+#         db_path=config['catbat']['db_path'],
+#         tx_path=config['catbat']['tax_path'],
+#     conda: f"{env_dir}/catbat_env.yml"
+#     benchmark: "catbat/benchmarks/bat_summary.txt"
+#     log: "catbat/logs/bat_summary.txt"
+#     shell: 
+#         """        
+#         db_name="{wildcards.db_name}"
+# 
+#         if [[ $db_name == "gtdb" ]]; then
+# 
+#         touch {output.bin_classification_names_added} 
+# 
+#         else
+# 
+#         CAT_pack add_names -i {input.bin_classification} -o {output.bin_classification_names_added} -t {params.tx_path} --only_official
+# 
+#         fi 
+# 
+#         touch {output.donefile}
+#         """

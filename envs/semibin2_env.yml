@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+  - bioconda
+  - pytorch
+  - nvidia
+dependencies:
+  - semibin 
+  - pytorch 
+  - pytorch-cuda

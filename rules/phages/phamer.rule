@@ -1,0 +1,27 @@
+rule run_phamer:
+    input:
+        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+    output:
+        out_dir = directory("phamer/{sample}"),
+        donefile = "phamer/{sample}/phamer.done"
+    params:
+        phabox_db = config["phabox2"]["db"],
+        min_len = config["phabox2"]["min_len"]
+    threads: 
+        config["phabox2"]["threads"]
+    resources:
+        mem_mb = config["phabox2"]["mem_mb"],
+        runtime = config["phabox2"]["runtime"]
+    conda: f"{env_dir}/phabox2.yml"
+    benchmark: "phabox/benchmarks/{sample}_phabox.txt"
+    shell:
+        """
+        phabox2 --task phamer \
+                --dbdir {params.phabox_db} \
+                --outpth {output.out_dir} \
+                --contigs {input.fasta} \
+                --len {params.min_len} \
+                --threads {threads}
+
+		touch {output.donefile}
+        """

@@ -1,0 +1,8 @@
+name: catbat_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - diamond=2.0.13
+  - cat

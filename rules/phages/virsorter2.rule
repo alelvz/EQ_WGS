@@ -1,0 +1,28 @@
+rule run_virsorter2:
+    input:
+        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+    output:
+        out_dir = directory("virsorter/{sample}"),
+        donefile = "virsorter/{sample}/virsorter.done"
+    params:
+        virsorter_db = config["virsorter2"]["db"],
+        min_len = config["virsorter2"]["min_len"]
+    threads: 
+        config["virsorter2"]["threads"]
+    resources:
+        mem_mb = config["virsorter2"]["mem_mb"],
+        runtime = config["virsorter2"]["runtime"]
+    conda: f"{env_dir}/virsorter2.yml"
+    benchmark: "virsorter/benchmarks/{sample}_virsorter.txt"
+    shell:
+        """
+        virsorter run -w {output.out_dir} \
+                --db-dir {params.virsorter_db} \
+                -i {input.fasta} \
+                --include-groups dsDNAphage,ssDNA,NCLDV,RNA,lavidaviridae \
+                -j {threads} \
+                --min-length {params.min_len}
+
+		touch {output.donefile}
+        """
+

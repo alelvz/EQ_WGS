@@ -1,0 +1,31 @@
+rule run_phabox2:
+    input:
+        fasta = lambda wildcards: phage_dict[wildcards.sample]
+    output:
+        out_dir = directory("phabox/{sample}"),
+        donefile = "phabox/{sample}/phabox.done"
+    params:
+        phabox_db = config["phabox2"]["db"],
+        mags_path = config["phabox2"]["mags"],
+        min_len = config["phabox2"]["min_len"]
+    threads: 
+        config["phabox2"]["threads"]
+    resources:
+        mem_mb = config["phabox2"]["mem_mb"],
+        runtime = config["phabox2"]["runtime"]
+
+    conda: f"{env_dir}/phabox2.yml"
+    benchmark: "phabox/benchmarks/{sample}_phabox.txt"
+    shell:
+        """
+        phabox2 --task end_to_end \
+                --skip Y \
+                --dbdir {params.phabox_db} \
+                --outpth {output.out_dir} \
+                --contigs {input.fasta} \
+                --len {params.min_len} \
+                --threads {threads} \
+                --bfolder {params.mags_path}
+
+		touch {output.donefile}
+        """
