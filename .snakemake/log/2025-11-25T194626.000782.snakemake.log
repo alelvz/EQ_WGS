@@ -1,0 +1,8 @@
+Building DAG of jobs...
+InputFunctionException in rule fastp in file /ibex/project/c2014/alelopezv/EQ_WGS/rules/assembly/assembly.rule, line 1:
+Error:
+  KeyError: 'samples'
+Wildcards:
+  sample=41PRr2
+Traceback:
+  File "/ibex/project/c2014/alelopezv/EQ_WGS/rules/assembly/assembly.rule", line 3, in <lambda>

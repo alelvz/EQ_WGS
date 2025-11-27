@@ -1,0 +1,44 @@
+rule fastp:
+    input:
+        r1 = lambda wildcards: config["samples"][wildcards.sample]["r1"],
+        r2 = lambda wildcards: config["samples"][wildcards.sample]["r2"]
+    output:
+        r1 = "processed_reads/{sample}_R1.fastq.gz",
+        r2 = "processed_reads/{sample}_R2.fastq.gz",
+        se = "processed_reads/{sample}_SE.fastq.gz",
+        html = "processed_reads/{sample}_report.html",
+        json = "processed_reads/{sample}_report.json"
+    params:
+        u1 = "processed_reads/{sample}_U1.fastq.gz",
+        u2 = "processed_reads/{sample}_U2.fastq.gz",
+        qualified_quality = config["fastp"]["qualified_quality"],
+        unqualified_percent = config["fastp"]["unqualified_percent"],
+        min_len = config["fastp"]["min_len"],
+        complexity = config["fastp"]["complexity"]
+    threads: 
+        config["fastp"]["threads"]
+    resources:
+        mem_mb = config["fastp"]["mem_mb"],
+        runtime = config["fastp"]["runtime"]
+    conda: 
+        f"{env_dir}/fastp.yml"
+    log:
+        "logs/fastp/{sample}.log"
+    shell:
+        """
+        fastp --thread {threads} \
+              -i {input.r1} -I {input.r2} \
+              -o {output.r1} -O {output.r2} \
+              --unpaired1 {params.u1} \
+              --unpaired2 {params.u2} \
+              -h {output.html} -j {output.json} \
+              --correction \
+              --qualified_quality_phred {params.qualified_quality} \
+              --unqualified_percent_limit {params.unqualified_percent} \
+              --length_required {params.min_len} \
+              --complexity_threshold {params.complexity} \
+              2> {log}
+
+        cat {params.u1} {params.u2} > {output.se} 2>> {log}
+        rm -f {params.u1} {params.u2}
+        """

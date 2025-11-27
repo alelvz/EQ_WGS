@@ -1,27 +1,42 @@
-rule run_phamer:
+rule megahit:
     input:
-        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+        r1 = "processed_reads/{sample}_R1.fastq.gz",
+        r2 = "processed_reads/{sample}_R2.fastq.gz",
+        se = "processed_reads/{sample}_SE.fastq.gz"
     output:
-        out_dir = directory("phamer/{sample}"),
-        donefile = "phamer/{sample}/phamer.done"
+        outdir = "assemblies/{sample}",
+        done = touch("assemblies/{sample}/{sample}.done")
     params:
-        phabox_db = config["phabox2"]["db"],
-        min_len = config["phabox2"]["min_len"]
-    threads: 
-        config["phabox2"]["threads"]
+        preset = config["megahit"]["preset"],
+        min_contig = config["megahit"]["min_contig"],
+        min_count = config["megahit"]["min_count"],
+        low_local = config["megahit"]["low_local"],
+        prune_level = config["megahit"]["prune_level"]
+    threads:
+        config["megahit"]["threads"]
     resources:
-        mem_mb = config["phabox2"]["mem_mb"],
-        runtime = config["phabox2"]["runtime"]
-    conda: f"{env_dir}/phabox2.yml"
-    benchmark: "phabox/benchmarks/{sample}_phabox.txt"
+        mem_mb = config["megahit"]["mem_mb"],
+        runtime = config["megahit"]["runtime"]
+    conda:
+        os.path.join(config["env_dir"], "megahit.yml")
+    log:
+        "logs/megahit/{sample}.log"
     shell:
         """
-        phabox2 --task phamer \
-                --dbdir {params.phabox_db} \
-                --outpth {output.out_dir} \
-                --contigs {input.fasta} \
-                --len {params.min_len} \
-                --threads {threads}
 
-		touch {output.donefile}
+        rm -rf {output.outdir}
+
+        # Run MEGAHIT
+        megahit \
+            -1 {input.r1} \
+            -2 {input.r2} \
+            -r {input.se} \
+            -o {output.outdir} \
+            --presets {params.preset} \
+            --min-contig-len {params.min_contig} \
+            --min-count {params.min_count} \
+            --low-local-ratio {params.low_local} \
+            --prune-level {params.prune_level} \
+            --num-cpu-threads {threads}
+            2> {log}
         """

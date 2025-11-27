@@ -1,0 +1,12 @@
+Building DAG of jobs...
+Your conda installation is not configured to use strict channel priorities. This is however crucial for having robust and correct environments (for details, see https://conda-forge.org/docs/user/tipsandtricks.html). Please consider to configure strict priorities by executing 'conda config --set channel_priority strict'.
+Creating conda environment /ibex/scratch/projects/c2014/alelopezv/EQ_WGS/envs/fastp.yml...
+Downloading and installing remote packages.
+CreateCondaEnvironmentException:
+Could not create conda environment from /ibex/scratch/projects/c2014/alelopezv/EQ_WGS/envs/fastp.yml:
+Command:
+mamba env create --quiet --file "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/conda_envs/a770d0de47f6a3dc4361f8ce08f6a291_.yaml" --prefix "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/conda_envs/a770d0de47f6a3dc4361f8ce08f6a291_"
+Output:
+error    libmamba Non-conda folder exists at prefix
+critical libmamba Aborting.
+

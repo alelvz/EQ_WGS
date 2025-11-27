@@ -1,22 +1,39 @@
 #Added phabox2 config and updated env_dir path
 
-env_dir: "/ibex/scratch/projects/c2014/alelopezv/EmptyQuarter_WGS/envs"
+env_dir: "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/envs"
 tmp_dir: "/tmp"
-src_dir: "/home/x_arbasm/repos/EmptyQuarter_WGS/scripts"
+src_dir: "/home/x_arbasm/repos/EQ_WGS/scripts"
 
-project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies"
-assembly_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/final_assemblies"
-assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/tables/all_sample_fasta.tsv"
 
+project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new"
+assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_sample_fasta.tsv"
+samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_samples_test.tsv"
 #modify to include in assembly_table
-phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/phage_prediction/summary_samples.tsv"
+phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction/summary_samples.tsv"
 
-mapping_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/remapping"
-taxa_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/taxonomy_test"
-binning_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/binning"
+mapping_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/remapping"
+taxa_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/taxonomy_test"
+binning_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/binning"
+phages_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction"
 
+fastp:
+    threads: 8
+    qualified_quality: 20
+    unqualified_percent: 40
+    min_len: 50
+    complexity: 20
+    runtime: 1440
+    mem_mb: 100000
 
-phages_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/phage_prediction"
+megahit:
+    threads: 16
+    preset: 'meta-large'
+    min_contig: 500
+    min_count: 2
+    low_local: 0.3
+    prune_level: 1
+    runtime: 7200
+    mem_mb: 256000
 
 genomad:
     db_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/genomad_db"
@@ -26,7 +43,7 @@ genomad:
 
 phabox2:
     db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/phabox_db_v2"
-    mags: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies/binning/dereplication/dereplicated_genomes"
+    mags: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/binning/dereplication/dereplicated_genomes"
     threads: 12
     runtime: 2160
     mem_mb: 150000
@@ -47,7 +64,7 @@ vibrant:
     min_len: 1000
 
 plasme:
-    bin: "/ibex/scratch/projects/c2014/alelopezv/EmptyQuarter_WGS/scripts/PLASMe"
+    bin: "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/scripts/PLASMe"
     db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/plasme/DB"
     threads: 8
     runtime: 1440
