@@ -7,7 +7,7 @@ src_dir: "/home/x_arbasm/repos/EQ_WGS/scripts"
 
 project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new"
 assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_sample_fasta.tsv"
-samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_samples_test.tsv"
+samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/trip4_samples.tsv" #all_samples.tsv"
 #modify to include in assembly_table
 phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction/summary_samples.tsv"
 
