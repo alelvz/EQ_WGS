@@ -5,7 +5,7 @@ rule megahit:
         se = "processed_reads/{sample}_SE.fastq.gz"
     output:
         outdir = "assemblies/{sample}",
-        done = touch("assemblies/{sample}/{sample}.done")
+        done = "assemblies/{sample}/{sample}.done"
     params:
         preset = config["megahit"]["preset"],
         min_contig = config["megahit"]["min_contig"],
@@ -39,4 +39,6 @@ rule megahit:
             --prune-level {params.prune_level} \
             --num-cpu-threads {threads} \
             2> {log}
+
+        touch {output.done}
         """

@@ -9,12 +9,11 @@ rule bwa_index_assembly:
         assembly_sa = "{sample}/DeepMicroClass/all_prokaryotic_seqs.fa.sa",
         done = "{sample}/DeepMicroClass/indexing.done"
     resources:
-        mem_mb = 24000,
-        runtime = 1440  # 24 hours × 60 minutes
-    threads: 6
+        mem_mb = config["bwa"]["mem_mb"],
+        runtime = config["bwa"]["runtime"]
+    threads: config["bwa"]["threads"]
     conda: f"{env_dir}/bwa_env.yml"
-    benchmark: "{sample}/benchmarks/bwa_indexing.txt"
-    log: "{sample}/logs/bwa_indexing.log"
+    log: "logs/{sample}_bwa_index.log"
     shell:
         """
         bwa index {input.fasta}
@@ -32,14 +31,12 @@ rule bwa_mapping_on_assembly:
         '{sample}/{sample}_metaG.reads.sorted.bam'
     params:
         prefix = "{sample}/{sample}_metaG.reads",
-        memory = 250
+        memory = config["bwa"]["mem_param"]
     resources:
-        mem_mb = 250000,
-        runtime = 1440  # 24 hours × 60 minutes
-    threads: 24
-    group: "bwa_mapping_on_assembly"
+        mem_mb = config["bwa"]["mem_mb"],
+        runtime = config["bwa"]["runtime"]
+    threads: config["bwa"]["threads"]
     conda: f"{env_dir}/bwa_env.yml"
-    benchmark: "benchmarks/{sample}_bwa_mapping.txt"
     log: "logs/{sample}_bwa_mapping.log"
     shell:
         """
@@ -65,13 +62,11 @@ rule index_mg_bam:
         bam = '{sample}/{sample}_metaG.reads.sorted.bam'
     output:
         bai = '{sample}/{sample}_metaG.reads.sorted.bam.bai'
-    group: "bwa_index_assembly"
     resources:
         mem_mb = 16000,
         runtime = 240  # 4 hours = 240 minutes
     conda: f"{env_dir}/bwa_env.yml"
-    benchmark: "{sample}/benchmarks/index_bam.txt"
-    log: "{sample}/logs/index_bam.txt"
+    log: "logs/{sample}_index_bam.log"
     shell:
         """
         samtools index {input} > {log} 2>&1

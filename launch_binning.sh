@@ -13,12 +13,14 @@ conda activate snakemake
 
 snakemake \
   --executor slurm \
-  --jobs 75 \
+  --jobs 200 \
   --jobname "{rule}-{wildcards.sample,jobid}-{jobid}" \
   --use-conda \
+  --conda-prefix conda_envs \
   --configfile config/config.yml \
   --rerun-incomplete \
-  --default-resources mem_mb=4000 runtime=3600 threads=1 \
+  --default-resources mem_mb=10000 runtime=720 threads=1 \
   --latency-wait 60 \
   --keep-going \
+  --printshellcmds \
   -s binning.smk

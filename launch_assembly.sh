@@ -10,7 +10,7 @@
 
 snakemake \
   --executor slurm \
-  --jobs 150 \
+  --jobs 100 \
   --default-resources \
       slurm_partition=batch \
       mem_mb=8000 \
@@ -24,3 +24,6 @@ snakemake \
   --keep-going \
   --printshellcmds \
   -s assembly.smk
+
+
+  # --conda-frontend mamba \

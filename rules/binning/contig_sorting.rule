@@ -2,14 +2,13 @@ rule deepmicroclass_predict:
     input:
         fasta = lambda wildcards: assembly_dict[wildcards.sample]
     output:
-        predictions = "{sample}/DeepMicroClass/{sample}_final.contigs.fa_pred_one-hot_hybrid.tsv"
+        predictions = "{sample}/DeepMicroClass/{sample}_contigs.fa_pred_one-hot_hybrid.tsv"
     conda: f"{env_dir}/deepmicroclass_env.yml"
     shadow: "shallow"
     resources: 
-        mem_mb=100000
-    threads: 6
-    benchmark: "benchmarks/{sample}_deepmicroclass_predict.txt"
-    log: "logs/{sample}_deepmicroclass_predict.log"
+        mem_mb = config["deepmc"]["mem_mb"],
+        runtime = config["deepmc"]["runtime"]
+    threads: config["deepmc"]["threads"]
     shell:
         """
         DeepMicroClass predict -i {input.fasta} -o {wildcards.sample}/DeepMicroClass --device cpu --cpu_thread {threads}
@@ -18,7 +17,7 @@ rule deepmicroclass_predict:
 rule deepmicroclass_extract:
     input:
         fasta = lambda wildcards: assembly_dict[wildcards.sample],
-        predictions = "{sample}/DeepMicroClass/{sample}_final.contigs.fa_pred_one-hot_hybrid.tsv"
+        predictions = "{sample}/DeepMicroClass/{sample}_contigs.fa_pred_one-hot_hybrid.tsv"
     output:
         prokaryotes = "{sample}/DeepMicroClass/prokaryotes.fa",
         eukaryotes = "{sample}/DeepMicroClass/eukaryotes.fa",
@@ -28,9 +27,8 @@ rule deepmicroclass_extract:
     conda: f"{env_dir}/deepmicroclass_env.yml"
     shadow: "shallow"
     resources:
-        mem_mb=10000
-    benchmark: "{sample}/benchmarks/{sample}_deepmicroclass_extract.txt"
-    log: "{sample}/logs/{sample}_deepmicroclass_extract.log"
+        mem_mb = config["deepmc"]["mem_mb"],
+        runtime = config["deepmc"]["runtime"]
     shell:
         """
 	DeepMicroClass extract --tsv {input.predictions} --fasta {input.fasta} \
@@ -56,13 +54,10 @@ rule get_all_prokaryotic_seqs:
         plasmids = "{sample}/DeepMicroClass/plasmids.fa"
     output: 
         "{sample}/DeepMicroClass/all_prokaryotic_seqs.fa"
-    benchmark: "{sample}/benchmarks/get_all_prokaryotic_seqs.txt"
-    log: "{sample}/logs/get_all_prokaryotic_seqs.log"
     shell:
         """
         ## For binning, group together all prokaryotic-related sequences, including viruses and plasmids
 
-        #cat {input} > {output}
 		cat {input.prokaryotes} {input.prokaryotic_viruses} {input.plasmids} 2>/dev/null > {output}
         """
 

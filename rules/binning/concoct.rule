@@ -10,14 +10,13 @@ rule concoct_cut_contigs:
         contig_split_length = config["concoct"]["contig_split_length"]
     conda: f"{env_dir}/concoct_env.yml"
     resources: 
-        mem_mb = 16000,
-        runtime = 1440 # 24 h * 60 min
-    shadow: "shallow"
-    benchmark: "{sample}/benchmarks/concoct_cut_contigs.txt"
-    log: "{sample}/logs/concoct_cut_contigs.txt"
+        mem_mb = config["concoct"]["mem_mb"],
+        runtime = config["concoct"]["runtime"]
+    log: "logs/concoct/{sample}_cut_contigs.log"
     shell:
         """
-        cut_up_fasta.py {input.fasta} -c {params.contig_split_length} -o 0 --merge_last -b {output.split_contigs_bed} > {output.split_contigs_fasta}
+        cut_up_fasta.py {input.fasta} -c {params.contig_split_length} -o 0 --merge_last -b {output.split_contigs_bed} > {output.split_contigs_fasta} \
+        2> {log}
         """
 
 rule concoct_coverage_table:
@@ -30,15 +29,14 @@ rule concoct_coverage_table:
     params:
         contig_split_length = config["concoct"]["contig_split_length"]
     conda: f"{env_dir}/concoct_env.yml"
-    shadow: "shallow"
     resources:
-        mem_mb = 16000,
-        runtime = 1440
-    benchmark: "{sample}/benchmarks/concoct_coverage_table.txt"
-    log: "{sample}/logs/concoct_coverage_table.txt"
+        mem_mb = config["concoct"]["mem_mb"],
+        runtime = config["concoct"]["runtime"]
+    log: "logs/concoct/{sample}_coverage_table.log"
     shell:
         """
-        concoct_coverage_table.py {input.split_contigs_bed} {input.bam} > {output.coverage_table}
+        concoct_coverage_table.py {input.split_contigs_bed} {input.bam} > {output.coverage_table} \
+        2> {log}
         """
 
 rule concoct:
@@ -48,51 +46,64 @@ rule concoct:
     output:
         clustering_result = "{sample}/concoct/results_clustering_gt%s.csv" % config["binning"]["min_contig_length"]
     params:
-        threads = config["concoct"]["threads"],
         contig_min_length = config["binning"]["min_contig_length"]
+    threads: config["concoct"]["threads"]
     conda: f"{env_dir}/concoct_env.yml"
-    shadow: "shallow"
     resources:
-        mem_mb = 200000,
-        runtime = 4320
-    benchmark: "{sample}/benchmarks/concoct.txt"
-    log: "{sample}/logs/concoct.txt"
+        mem_mb = config["concoct"]["mem_mb_cluster"],
+        runtime = config["concoct"]["runtime_cluster"]
+    log: "logs/concoct/{sample}_cluster.log"
     shell:
         """
         concoct --composition_file {input.split_contigs_fasta} -l {params.contig_min_length} \
-        --coverage_file {input.coverage_table} -t {params.threads} -b {wildcards.sample}/concoct/results
+        --coverage_file {input.coverage_table} -t {threads} -b {wildcards.sample}/concoct/results \
+        2> {log}
         """
-
+ 
 rule concoct_merge_clusters:
     input:
         clustering_result = "{sample}/concoct/results_clustering_gt%s.csv" % config["binning"]["min_contig_length"],
         fasta = "{sample}/DeepMicroClass/all_prokaryotic_seqs.fa"
     output:
-        merged_table = "{sample}/concoct/bins/clustering_merged.csv",
-        bin_dir = directory("{sample}/concoct/bins")
+        merged_table = "{sample}/concoct/clustering_merged.csv",
+        bin_dir = directory("{sample}/concoct/bins"),
+        done = "{sample}/concoct/concoct.done"
     conda: f"{env_dir}/concoct_env.yml"
-    shadow: "shallow"
     resources:
-        mem_mb = 16000,
-        runtime = 1440
-    benchmark: "{sample}/benchmarks/concoct_merge_clusters.txt"
-    log: "{sample}/logs/concoct_merge_clusters.txt"
+        mem_mb = config["concoct"]["mem_mb"],
+        runtime = config["concoct"]["runtime"]
+    log: "logs/concoct/{sample}_merge_clusters.log"
     shell:
         """
-        merge_cutup_clustering.py {input.clustering_result} > {output.merged_table}
+        merge_cutup_clustering.py {input.clustering_result} > {output.merged_table} \
+        2> {log}
+
         mkdir -p {output.bin_dir}
-        extract_fasta_bins.py {input.fasta} {output.merged_table} --output_path {output.bin_dir}
+
+        extract_fasta_bins.py {input.fasta} {output.merged_table} --output_path {output.bin_dir} \
+        2>> {log}
+
+        touch {output.done}
         """
 
 rule concoct_contig_to_bin:
     input:
-        merged_table = "{sample}/concoct/bins/clustering_merged.csv",
+        merged_table = "{sample}/concoct/clustering_merged.csv",
+        done = "{sample}/concoct/concoct.done"
     output:
-        contig_to_bin="{sample}/concoct/contig_to_bin.tsv",
-    shadow: "shallow"
+        contig_to_bin="{sample}/concoct/contig_to_bin.tsv"
+    resources:
+        mem_mb = config["concoct"]["mem_mb"],
+        runtime = config["concoct"]["runtime"]
+    resources:
+        mem_mb = 8000,
+        runtime = 120
+    log: "logs/concoct/{sample}_contig_to_bin.log"
     shell:
         """
-        paste <(cat {input.merged_table} | cut -f2 -d ',') \
-        <(cat {input.merged_table} | cut -f1 -d ',') | \
-        awk '{{print $0 "\tconcoct"}}' | tail -n +2 |  sort > {output.contig_to_bin}
+        paste <(cut -f2 -d',' {input.merged_table}) \
+              <(cut -f1 -d',' {input.merged_table}) | \
+        awk '{{print $0 "\tconcoct"}}' | \
+        tail -n +2 | \
+        sort > {output.contig_to_bin} 2> {log}
         """

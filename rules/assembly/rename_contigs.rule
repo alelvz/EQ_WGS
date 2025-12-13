@@ -1,0 +1,11 @@
+rule rename_contigs:
+    input:
+        assembly = "assemblies/{sample}/{sample}_contigs.fa"
+    output:
+        renamed = "assemblies/{sample}/{sample}_contigs_renamed.fa"
+    log:
+        "logs/rename_contigs/{sample}.log"
+    shell:
+        """
+        sed 's/^>[^_]*_\\([^ ]*\\).*/>{wildcards.sample}_\\1/' {input.assembly} > {output.renamed} 2> {log}
+        """

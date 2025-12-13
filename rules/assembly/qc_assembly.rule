@@ -1,0 +1,24 @@
+rule quast:
+    input:
+        assembly = "assemblies/{sample}/final.contigs.fa"
+    output:
+        report_dir = directory("assemblies/qc/{sample}"),
+        report_txt = "assemblies/qc/{sample}/report.txt" 
+    threads: 
+        config["quast"]["threads"]
+    resources:
+        mem_mb = config["quast"]["mem_mb"],
+        runtime = config["quast"]["runtime"]
+    conda: 
+        f"{env_dir}/quast.yml"
+    log:
+        "logs/quast/{sample}.log"
+    shell:
+        """
+        quast.py \
+            {input.assembly} \
+            -o {output.report_dir} \
+            --threads {threads} \
+            2> {log}
+
+        """

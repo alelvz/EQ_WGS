@@ -2,22 +2,22 @@ rule semibin:
     input:
         fasta = "{sample}/DeepMicroClass/all_prokaryotic_seqs.fa",
         bam = "{sample}/{sample}_metaG.reads.sorted.bam",
-        bai = "{sample}/{sample}_metaG.reads.sorted.bam.bai",
-        depth_file = "{sample}/contig_depth.txt"
+        bai = "{sample}/{sample}_metaG.reads.sorted.bam.bai"
     output:
-        done = '{sample}/semibin.done',
-        outdir = directory('{sample}/semibin')
+        bin_dir = directory('{sample}/semibin/output_bins'),
+        done = '{sample}/semibin/semibin.done'
     resources:
-        mem_mb = 250000,
-        runtime = 4320
-    threads: 24
+        mem_mb = config["semibin"]["mem_mb"],
+        runtime = config["semibin"]["runtime"]
+    threads: config["semibin"]["threads"]
     params:
         tmpdir = config["tmp_dir"],
+        batch_size = config["semibin"]["batch_size"],
         min_contig_length = config["binning"]["min_contig_length"],
-        environment_type = config["semibin"]["environment_type"]
+        environment_type = config["semibin"]["environment_type"],
+        output_base = '{sample}/semibin'
     conda: f"{env_dir}/semibin2_env.yml"
-    benchmark: "{sample}/benchmarks/semibin2.txt"
-    log: "{sample}/logs/semibin2.txt"
+    log: "logs/semibin2/{sample}_semibin2.log"
     shell:
         """
         SemiBin2 \
@@ -28,27 +28,38 @@ rule semibin:
         --input-fasta {input.fasta} \
         --input-bam {input.bam} \
         --environment {params.environment_type} \
-        --output {output.outdir}
+        --batch-size {params.batch_size} \
+        --output {params.output_base} \
+        2> {log}
+
+        gunzip -f {output.bin_dir}/*.fa.gz 2>/dev/null || true
 
         touch {output.done}
         """
 
 rule semibin_contig_to_bin:
     input:
-        bin_dir = "{sample}/semibin"
+        bin_dir = "{sample}/semibin/output_bins",
+        done = "{sample}/semibin/semibin.done"
     output:
-        contig_to_bin="{sample}/semibin/contig_to_bin.tsv",
-    shadow: "shallow"
+        contig_to_bin="{sample}/semibin/contig_to_bin.tsv"
+    resources:
+        mem_mb = 8000,
+        runtime = 120
+    log: "logs/semibin2/{sample}_contig_to_bin.log"
     shell:
-        r"""
-        gunzip -fk {input.bin_dir}/output_bins/*.fa.gz
-
-        ls {input.bin_dir}/output_bins/*.fa | \
-        xargs -I{{}} bash -c 'paste <(yes "{{}}" | \
-        head -n $(grep -c "^>" {{}}) | \
-        sed -e "s:{input.bin_dir}/output_bins/::g") \
-        <(grep "^>" {{}} | \
-        sed -e "s/>//g") <(yes "semibin" | \
-        head -n $(grep -c "^>" {{}}))' | \
-        sed -e 's/\.fa//g' > {output.contig_to_bin}
+        """
+        > {output.contig_to_bin}
+        
+        # Bins already decompressed in semibin rule
+        for bin_file in {input.bin_dir}/*.fa; do
+            if [ -f "$bin_file" ]; then
+                bin_name=$(basename "$bin_file" .fa)
+                grep "^>" "$bin_file" | sed 's/^>//' | \
+                    awk -v bin="$bin_name" '{{print bin "\t" $1 "\tsemibin"}}' \
+                    >> {output.contig_to_bin}
+            fi
+        done
+        
+        sort -k1,1 {output.contig_to_bin} -o {output.contig_to_bin} 2> {log}
         """

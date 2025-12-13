@@ -5,16 +5,14 @@ rule get_depth_of_coverage:
     output:
         depth_file = "{sample}/contig_depth.txt",
     conda: f"{env_dir}/metabat2_env.yml"
-    shadow: "shallow"
     resources:
-        mem_mb = 24000,
-        runtime = 1440
-    benchmark: "{sample}/benchmarks/jgi_summarize_bam_contig_depths.txt"
-    log: "{sample}/logs/jgi_summarize_bam_contig_depths.txt"
+        mem_mb = config["metabat2"]["mem_mb"],
+        runtime = config["metabat2"]["runtime"]
+    log: "logs/metabat2/{sample}_jgi_summarize_bam_contig_depths.log"
     shell:
         """
-	jgi_summarize_bam_contig_depths --outputDepth {output.depth_file} \
-        {input.bam}
+	    jgi_summarize_bam_contig_depths --outputDepth {output.depth_file} {input.bam} \
+        2> {log}
         """
 
 rule metabat2:
@@ -24,55 +22,54 @@ rule metabat2:
         bai = "{sample}/{sample}_metaG.reads.sorted.bam.bai",
         depth_file = "{sample}/contig_depth.txt"
     output:
-        bin_dir = directory('{sample}/metabat2'),
-        done = '{sample}/metabat2.done'
+        bin_dir = directory('{sample}/metabat2/bins'),
+        done = '{sample}/metabat2/metabat2.done'
     params:
-        threads = config["metabat2"]["threads"],
         min_contig_length = config["binning"]["min_contig_length"],
-        prefix = '{sample}/metabat2/metabat_bin',
-        reordered_depth_file = '{sample}/metabat2/contig_depth.txt'
+        prefix = '{sample}/metabat2/bins/bin'
     resources:
-        mem_mb = 100000,
-        runtime = 4320
-    shadow: "shallow"
+        mem_mb = config["metabat2"]["mem_mb"],
+        runtime = config["metabat2"]["runtime"]
+    threads: config["metabat2"]["threads"]
     conda: f"{env_dir}/metabat2_env.yml"
-    benchmark: "{sample}/benchmarks/metabat2.txt"
-    log: "{sample}/logs/metabat2.txt"
+    log: "logs/metabat2/{sample}_metabat2.log"
     shell:
         """
         mkdir -p {output.bin_dir}
 
-        awk 'NR==FNR {{order[$1]=NR; next}} $1 in order {{print order[$1], $0}}' \
-        <(grep '>' {input.fasta} | sed 's/>//') {input.depth_file} | \
-        sort -k1,1n | cut -d' ' -f2- > {params.reordered_depth_file}
-
-        metabat2 -t {params.threads} \
+        metabat2 -t {threads} \
         -i {input.fasta} \
         -o {params.prefix} \
-        -a {params.reordered_depth_file} \
-        -m {params.min_contig_length}
+        -a {input.depth_file} \
+        -m {params.min_contig_length} \
+        2> {log}
 
-	touch {output.done}
+	    touch {output.done}
         """
 
 rule metabat2_contig_to_bin:
     input:
-        bin_dir = "{sample}/metabat2"
+        bin_dir = "{sample}/metabat2/bins",
+        done = "{sample}/metabat2/metabat2.done"
     output:
         contig_to_bin="{sample}/metabat2/contig_to_bin.tsv"
-    shadow: "shallow"
     resources:
-        mem_mb = 16000,
-        runtime = 1440
+        mem_mb = 8000,
+        runtime = 120
+    log: "logs/metabat2/{sample}_contig_to_bin.log"
     shell:
-        r"""
-        ls {input.bin_dir}/*.fa | \
-        xargs -I{{}} bash -c 'paste <(yes "{{}}" | \
-        head -n $(grep -c "^>" {{}}) | \
-        sed -e "s:{input.bin_dir}/::g") \
-        <(grep "^>" {{}} | \
-        sed -e "s/>//g") <(yes "metabat2" | \
-        head -n $(grep -c "^>" {{}}))' | \
-        sed -e 's/\.fa//g' > {output.contig_to_bin}
+        """
+        > {output.contig_to_bin}
+        
+        for bin_file in {input.bin_dir}/*.fa; do
+            if [ -f "$bin_file" ]; then
+                bin_name=$(basename "$bin_file" .fa)
+                grep "^>" "$bin_file" | sed 's/^>//' | \
+                    awk -v bin="$bin_name" '{{print bin "\t" $1 "\tmetabat2"}}' \
+                    >> {output.contig_to_bin}
+            fi
+        done
+        
+        sort -k1,1 {output.contig_to_bin} -o {output.contig_to_bin} 2> {log}
         """
 

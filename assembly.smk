@@ -26,14 +26,18 @@ output_dir = config['project_dir']
 project_dir = config['project_dir']
 
 # Rules
-include: 'rules/assembly/qc.rule'
-include: 'rules/assembly/assembly.rule'
+#include: 'rules/assembly/qc_reads.rule'
+#include: 'rules/assembly/assembly.rule'
+include: 'rules/assembly/rename_contigs.rule'
+include: 'rules/assembly/qc_assembly.rule'
 
-ruleorder: fastp > megahit
+#ruleorder: fastp > megahit
 
 workdir: project_dir
 
 rule all:
     input:
         expand("processed_reads/{sample}_report.html", sample=samples),
-        expand("assemblies/{sample}/{sample}.done", sample=samples)
+        expand("assemblies/{sample}/done", sample=samples),
+        expand("assemblies/{sample}/{sample}_contigs.fa", sample=samples),
+        expand("assemblies/qc/{sample}/report.txt", sample=samples)

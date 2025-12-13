@@ -7,7 +7,7 @@ src_dir: "/home/x_arbasm/repos/EQ_WGS/scripts"
 
 project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new"
 assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_sample_fasta.tsv"
-samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/trip4_samples.tsv" #all_samples.tsv"
+samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_samples.tsv"
 #modify to include in assembly_table
 phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction/summary_samples.tsv"
 
@@ -24,6 +24,11 @@ fastp:
     complexity: 20
     runtime: 1440
     mem_mb: 100000
+
+quast:
+    threads: 8
+    runtime: 180
+    mem_mb: 50000
 
 megahit:
     threads: 16
@@ -83,22 +88,43 @@ catbat:
   tax_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/cat/20231120_CAT_gtdb/tax"
 
 binning:
-  min_contig_length: 1500 ## Required by metabat2
+  min_contig_length: 1500 ## Required by metabat2, maxbin2, and semibin
+
+deepmc:
+    threads: 8
+    runtime: 600
+    mem_mb: 10000
+
+bwa:
+    threads: 24
+    runtime: 1440
+    mem_mb: 250000
+    mem_param: 250
 
 concoct:
     threads: 40
+    runtime: 1440
+    runtime_cluster: 4320
+    mem_mb: 16000
+    mem_mb_cluster: 200000
     read_length: 150
     contig_split_length: 1000
 
 metabat2:
     threads: 24
+    runtime: 1440
+    mem_mb: 16000
     
 maxbin2:
     threads: 24
-    mem_gb: "100GB"
+    runtime: 1440
+    mem_mb: 10000
 
 semibin:
     threads: 24
+    runtime: 4320
+    mem_mb: 500000
+    batch_size: 2048
     environment_type: "soil"
 
 drep:
