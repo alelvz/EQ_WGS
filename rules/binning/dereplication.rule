@@ -7,11 +7,10 @@ rule drep_collect_all_bins:
     resources:
         runtime = 1440,
         mem_mb = 8000
-    benchmark: "benchmarks/collect_all_bins.txt"
-    log: "logs/collect_all_bins.txt"
+    log: "logs/drep/collect_all_bins.log"
     shell:
         """
-        find {input} -type f | grep ".fasta$" > {output.bins}
+        find {input} -type f | grep ".fasta$" > {output.bins} 2> {log}
         """
 
 rule drep_dereplication:
@@ -19,23 +18,29 @@ rule drep_dereplication:
         bins = "bin_paths.txt"
     output:
         output_dir = directory("dereplication")
-    threads: 36
+    params: 
+        comp = config["drep"]["completeness"],
+        con = config["drep"]["contamination"],
+        strw = config["drep"]["strain_heterogeneity_weight"],
+        pani = config["drep"]["P_ani"],
+        sani = config["drep"]["S_ani"]
+    threads: config["drep"]["threads"]
     resources:
-        mem_mb = 250000,
-        runtime = 7200 
+        mem_mb = config["drep"]["mem_mb"],
+        runtime = config["drep"]["runtime"]
     conda: f"{env_dir}/drep_env.yml"
-    benchmark: "benchmarks/drep_derepliction.txt"
-    log: "logs/drep.txt"
+    log: "logs/drep/dereplication.log"
     shell: 
         """
         dRep dereplicate \
         {output.output_dir} \
         -p {threads} \
-        -comp {config[drep][completeness]} \
-        -con {config[drep][contamination]} \
-        -strW {config[drep][strain_heterogeneity_weight]} \
-        --P_ani {config[drep][P_ani]} \
-        --S_ani {config[drep][S_ani]} \
+        -comp {params.comp} \
+        -con {params.con} \
+        -strW {params.strw} \
+        --P_ani {params.pani} \
+        --S_ani {params.sani} \
         --run_tertiary_clustering -centW 0 \
-        -g {input.bins}
+        -g {input.bins} \
+        2> {log}
         """

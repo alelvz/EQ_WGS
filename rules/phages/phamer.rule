@@ -1,10 +1,10 @@
 rule run_phamer:
     input:
-        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+        fasta = lambda wildcards: prokaryotes_dict[wildcards.sample]
     output:
-        out_dir = directory("phamer/{sample}"),
-        donefile = "phamer/{sample}/phamer.done"
+        donefile = "prediction/{sample}/phamer/phamer.done"
     params:
+        outdir = "prediction/{sample}/phamer",
         phabox_db = config["phabox2"]["db"],
         min_len = config["phabox2"]["min_len"]
     threads: 
@@ -13,15 +13,17 @@ rule run_phamer:
         mem_mb = config["phabox2"]["mem_mb"],
         runtime = config["phabox2"]["runtime"]
     conda: f"{env_dir}/phabox2.yml"
-    benchmark: "phabox/benchmarks/{sample}_phabox.txt"
+    log:
+        "logs/phamer/{sample}_phamer.log"
     shell:
         """
         phabox2 --task phamer \
                 --dbdir {params.phabox_db} \
-                --outpth {output.out_dir} \
+                --outpth {params.outdir} \
                 --contigs {input.fasta} \
                 --len {params.min_len} \
-                --threads {threads}
+                --threads {threads} \
+                > {log} 2>&1
 
 		touch {output.donefile}
         """

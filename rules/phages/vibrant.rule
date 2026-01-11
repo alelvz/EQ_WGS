@@ -1,28 +1,28 @@
 rule run_vibrant:
     input:
-        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+        fasta = lambda wildcards: prokaryotes_dict[wildcards.sample]
     output:
-        out_dir = directory("vibrant/{sample}"),
-        donefile = "vibrant/{sample}/vibrant.done"
+        donefile = "prediction/{sample}/vibrant/vibrant.done"
     params:
-        phabox_db = config["phabox2"]["db"],
-        min_len = config["phabox2"]["min_len"]
+        outdir = "prediction/{sample}/vibrant",
+        vibrant_db = config["vibrant"]["db"],
+        min_len = config["vibrant"]["min_len"]
     threads: 
-        config["phabox2"]["threads"]
+        config["vibrant"]["threads"]
     resources:
-        mem_mb = config["phabox2"]["mem_mb"],
-        runtime = config["phabox2"]["runtime"]
-    conda: f"{env_dir}/phabox2.yml"
-    benchmark: "phabox/benchmarks/{sample}_phabox.txt"
+        mem_mb = config["vibrant"]["mem_mb"],
+        runtime = config["vibrant"]["runtime"]
+    conda: f"{env_dir}/vibrant.yml"
+    log:
+        "logs/vibrant/{sample}_vibrant.log"
     shell:
         """
-        
-        phabox2 --task phamer \
-                --dbdir {params.phabox_db} \
-                --outpth {output.out_dir} \
-                --contigs {input.fasta} \
-                --len {params.min_len} \
-                --threads {threads}
+        VIBRANT_run.py -i {input.fasta} \
+            -folder {params.outdir} \
+            -t {threads} \
+            -d {params.vibrant_db} \
+            -l {params.min_len} \
+            > {log} 2>&1
 
 		touch {output.donefile}
         """

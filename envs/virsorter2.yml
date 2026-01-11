@@ -1,3 +1,4 @@
+name: virsorter2
 channels:
   - bioconda
   - conda-forge

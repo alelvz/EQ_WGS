@@ -4,6 +4,6 @@ channels:
   - pytorch
   - nvidia
 dependencies:
-  - semibin 
+  - semibin=2.2.1
   - pytorch 
   - pytorch-cuda

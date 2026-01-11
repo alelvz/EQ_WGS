@@ -6,13 +6,12 @@ rule magscot_separate_bins:
         separate_bins = directory("{sample}/magscot_bins")
     conda: f"{env_dir}/pullseq_env.yml"
     resources:
-        mem_mb = 16000,
-        runtime = 2880
-    benchmark: "{sample}/benchmarks/binning_separate_bins.txt"
-    log: "{sample}/logs/binning_separate_bins.txt"
+        runtime = config["magscot"]["runtime"],
+        mem_mb = config["magscot"]["mem_mb"]
+    threads: config["magscot"]["threads"]
+    log: "logs/magscot/{sample}_separate_bins.txt"
     shell:
-         r"""
-         # Create the output directory
+         """
          mkdir -p {output.separate_bins}
          
          # Read the binning results file
@@ -23,7 +22,7 @@ rule magscot_separate_bins:
          {output.separate_bins}/{wildcards.sample}_${{bin_name}}.fasta
          
          # Add bin name in front of the contig         
-         sed -i "s/^>/> {wildcards.sample}_${{bin_name}}_/g" {output.separate_bins}/{wildcards.sample}_${{bin_name}}.fasta
+         sed -i "s/^>/>{wildcards.sample}_${{bin_name}}_/g" {output.separate_bins}/{wildcards.sample}_${{bin_name}}.fasta
 
-         done
+         done 2> {log}
          """

@@ -6,15 +6,13 @@ src_dir: "/home/x_arbasm/repos/EQ_WGS/scripts"
 
 
 project_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new"
-assembly_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_sample_fasta.tsv"
 samples_table: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/tables/all_samples.tsv"
-#modify to include in assembly_table
-phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction/summary_samples.tsv"
+phage_contigs: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_analysis/summary_samples.tsv"
 
 mapping_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/remapping"
 taxa_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/taxonomy_test"
 binning_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/binning"
-phages_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_prediction"
+phages_dir: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/phage_analysis"
 
 fastp:
     threads: 8
@@ -42,12 +40,12 @@ megahit:
 
 genomad:
     db_path: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/genomad_db"
-    threads: 8
-    runtime: 1440
-    mem_mb: 100000
+    threads: 12 #8
+    runtime: 4320 #1440
+    mem_mb: 128000 #100000
 
 phabox2:
-    db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/phabox_db_v2"
+    db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/phabox_db_v2_1"
     mags: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/wgs_assemblies_new/binning/dereplication/dereplicated_genomes"
     threads: 12
     runtime: 2160
@@ -57,19 +55,19 @@ phabox2:
 virsorter2:
     db: "/ibex/sw/rl9c/virsorter2/2.2.4/rl9_conda3/db"
     threads: 16
-    runtime: 3600
-    mem_mb: 80000
+    runtime: 5760 #3600 
+    mem_mb: 128000 #80000
     min_len: 1000
     
 vibrant:
-    db: "/ibex/sw/rl9c/virsorter2/2.2.4/rl9_conda3/db"
+    db: "/ibex/sw/csi/vibrant/1.2.1/el7.9_miniconda3/VIBRANT/databases"
     threads: 16
-    runtime: 3600
-    mem_mb: 80000
+    runtime: 4320 #3600
+    mem_mb: 128000 #80000
     min_len: 1000
 
 plasme:
-    bin: "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/scripts/PLASMe"
+    src: "/ibex/scratch/projects/c2014/alelopezv/EQ_WGS/src/PLASMe"
     db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/plasme/DB"
     threads: 8
     runtime: 1440
@@ -123,13 +121,13 @@ maxbin2:
 semibin:
     threads: 24
     runtime: 4320
-    mem_mb: 500000
-    batch_size: 2048
+    mem_mb: 400000
+    batch_size: 2048 #default 2048
     environment_type: "soil"
 
 drep:
     threads: 36 
-    mem_mb: 500000
+    mem_mb: 250000
     runtime: 7200
     completeness: 75
     contamination: 25
@@ -146,5 +144,13 @@ bakta:
     mem_mb: 120000
     runtime: 4320
 
+prodigal:
+    mem_mb: 250000
+    runtime: 4320
+
 magscot:
-    folder: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/magscot"
+    db: "/ibex/scratch/projects/c2014/EmptyQuarter_Data/soil/databases/magscot"
+    threads: 12
+    mem_mb: 16000
+    runtime: 2880
+

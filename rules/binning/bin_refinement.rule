@@ -1,21 +1,22 @@
 rule magscot_bin_refinement:
     input:
-        contig_to_bin = "{sample}/contig_to_bin.tsv",
-        markers_hmm = "{sample}/markers.hmm"
+        contig_to_bin = "{sample}/magscot/contig_to_bin.tsv",
+        markers_hmm = "{sample}/magscot/markers.hmm"
     output:
-        outdir = directory("{sample}/magscot"), 
         binning_results="{sample}/magscot/MAGScoT.refined.contig_to_bin.out"
-    params: magscot_folder = config["magscot"]["folder"]
+    params: 
+        magscot_db = config["magscot"]["db"],
+        output_prefix = "{sample}/magscot/MAGScoT"
     conda: f"{env_dir}/magscot_env.yml"
     resources:
-        runtime = 4320,
-        mem_mb = 24000
-    benchmark: "{sample}/benchmarks/binning_magscot.txt"
-    log: "{sample}/logs/binning_magscot.txt"
+        runtime = config["magscot"]["runtime"],
+        mem_mb = config["magscot"]["mem_mb"]
+    log: "logs/magscot/{sample}_refinement.log"
     shell: 
         """
-        mkdir -p {wildcards.sample}/magscot
-        Rscript {params.magscot_folder}/MAGScoT.R \
-        -i {input.contig_to_bin} --hmm {input.markers_hmm} \
-        -o {wildcards.sample}/magscot/MAGScoT
+        Rscript {params.magscot_db}/MAGScoT.R \
+            -i {input.contig_to_bin} \
+            --hmm {input.markers_hmm} \
+            -o {params.output_prefix} \
+            2> {log}
         """

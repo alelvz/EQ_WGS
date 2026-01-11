@@ -51,11 +51,11 @@ include: 'rules/binning/concoct.rule'
 include: 'rules/binning/metabat2.rule'
 include: 'rules/binning/maxbin2.rule'
 include: 'rules/binning/semibin.rule'
-#include: 'rules/binning/marker_genes.rule'
-#include: 'rules/binning/contig_to_bin.rule'
-#include: 'rules/binning/bin_refinement.rule'
-#include: 'rules/binning/separate_bins.rule'
-#include: 'rules/binning/dereplication.rule'
+include: 'rules/binning/marker_genes.rule'
+include: 'rules/binning/contig_to_bin.rule'
+include: 'rules/binning/bin_refinement.rule'
+include: 'rules/binning/separate_bins.rule'
+include: 'rules/binning/dereplication.rule'
 #este no.. include: 'rules/binning/run_bat.rule'
 #include: 'rules/binning/bakta_bins.rule'
 
@@ -74,19 +74,15 @@ rule all:
         expand("{sample}/DeepMicroClass/all_prokaryotic_seqs.fa", sample = samples),
         expand("{sample}/{sample}_metaG.reads.sorted.bam", sample = samples),
         expand("{sample}/{sample}_metaG.reads.sorted.bam.bai", sample = samples),
-        expand("{sample}/concoct/bins", sample = samples),
-        expand("{sample}/concoct/concoct.done", sample = samples),
         expand("{sample}/concoct/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/metabat2/metabat2.done", sample = samples),
         expand("{sample}/metabat2/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/maxbin2/maxbin2.done", sample = samples),
         expand("{sample}/maxbin2/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/semibin/semibin.done", sample = samples),
-        expand("{sample}/semibin/contig_to_bin.tsv", sample = samples)
-        #expand("{sample}/magscot/MAGScoT.refined.contig_to_bin.out", sample = samples),
-        #expand("{sample}/magscot", sample = samples),
-        #expand("{sample}/magscot_bins", sample = samples),
-        #"dereplication",
+        expand("{sample}/semibin/contig_to_bin.tsv", sample = samples),
+        expand("{sample}/magscot/markers.hmm", sample = samples),
+        expand("{sample}/magscot/contig_to_bin.tsv", sample = samples),
+        expand("{sample}/magscot/MAGScoT.refined.contig_to_bin.out", sample = samples),
+        expand("{sample}/magscot_bins", sample = samples),
+        "dereplication"
         #este no.. expand("taxonomy/{bin_id}.BAT.done", bin_id = bin_ids),
         #expand("bakta_derep_bins/{bin_id}/{bin_id}.txt", bin_id = bin_ids)
 

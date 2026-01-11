@@ -1,10 +1,10 @@
 rule run_genomad:
     input:
-        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+        fasta = lambda wildcards: prokaryotes_dict[wildcards.sample]
     output:
-        #out_dir = directory("genomad/{sample}"),
-        donefile = "genomad/{sample}/genomad.done"
+        donefile = "prediction/{sample}/genomad/genomad.done"
     params:
+        outdir = "prediction/{sample}/genomad",
         genomad_db = config["genomad"]["db_path"]
     threads: 
         config["genomad"]["threads"]
@@ -12,14 +12,16 @@ rule run_genomad:
         mem_mb = config["genomad"]["mem_mb"],
         runtime = config["genomad"]["runtime"]
     conda: f"{env_dir}/genomad_env.yml"
-    benchmark: "genomad/benchmarks/{sample}_genomad.txt"
+    log:
+        "logs/genomad/{sample}_genomad.log"
     shell:
         """
         genomad end-to-end --cleanup \
                 {input.fasta} \
-			    "genomad/{wildcards.sample}" \
+                {params.outdir} \
 			    --splits {threads} \
-				{params.genomad_db}
+				{params.genomad_db} \
+                > {log} 2>&1
 
 		touch {output.donefile}
         """

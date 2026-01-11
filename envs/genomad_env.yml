@@ -1,5 +1,7 @@
+name: genomad
 channels:
   - conda-forge
   - bioconda
 dependencies:
-  - genomad
+  - genomad=1.11.2
+  - python=3.10

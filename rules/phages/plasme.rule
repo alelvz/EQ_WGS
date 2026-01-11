@@ -1,28 +1,36 @@
 rule run_plasme:
     input:
-        fasta = lambda wildcards: assembly_dict[wildcards.sample]
+        fasta = lambda wildcards: prokaryotes_dict[wildcards.sample]
     output:
-        out_dir = "plasme/{sample}/{sample}_plasmids.fasta",
-        tmp_dir = directory("plasme/{sample}/tmp"),
-        donefile = "plasme/{sample}/plasme.done"
+        plasmids = "prediction/{sample}/plasme/{sample}_plasmids.fasta",
+        donefile = "prediction/{sample}/plasme/plasme.done"
     params:
+        tmpdir = "prediction/{sample}/plasme/tmp",
         plasme_db = config["plasme"]["db"],
-        plasme_bin = config["plasme"]["bin"]
+        plasme_src = config["plasme"]["src"]
     threads: 
         config["plasme"]["threads"]
     resources:
         mem_mb = config["plasme"]["mem_mb"],
         runtime = config["plasme"]["runtime"]
     conda: f"{env_dir}/plasme.yml"
-    benchmark: "plasme/benchmarks/{sample}_plasme.txt"
+    log:
+        "logs/plasme/{sample}_plasme.log"
     shell:
         """
-        python {params.plasme_bin}/PLASMe.py {input.fasta} \
-                {output.out_dir} \
-                -d {params.plasme_db} \
-                -t {threads} \
-                --temp {output.tmp_dir}
-
-		touch {output.donefile}
+        mkdir -p {params.tmpdir}
+        
+        python {params.plasme_src}/PLASMe.py \
+            {input.fasta} \
+            {output.plasmids} \
+            -d {params.plasme_db} \
+            -t {threads} \
+            --temp {params.tmpdir} \
+            > {log} 2>&1
+        
+        # Cleanup temp files
+        rm -rf {params.tmpdir}
+        
+        touch {output.donefile}
         """
 

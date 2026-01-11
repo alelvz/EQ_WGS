@@ -1,6 +1,7 @@
-name: phabox2
+name: vibrant
 channels:
   - bioconda
   - conda-forge
 dependencies:
-  - phabox=2.1.13
+  - vibrant=1.2.1
+  - python=3.7
