@@ -1,12 +1,4 @@
 #!/bin/bash -l
-#SBATCH --time 24:00:00
-#SBATCH --job-name=cat
-#SBATCH --mail-type=fail
-#SBATCH --ntasks 4
-#SBATCH --cpus-per-task 6
-#SBATCH --mem=64
-
-
 
 snakemake \
   --executor slurm \
@@ -24,6 +16,3 @@ snakemake \
   --keep-going \
   --printshellcmds \
   -s assembly.smk
-
-
-  # --conda-frontend mamba \
