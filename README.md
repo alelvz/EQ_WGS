@@ -19,9 +19,10 @@ EQ_WGS/
 ├── assembly.smk              # Assembly workflow
 ├── binning.smk               # Binning workflow
 ├── phage_prediction.smk      # Phage prediction workflow
-├── launch_assembly.sh        # SLURM submission script for assembly
-├── launch_binning.sh         # SLURM submission script for binning
-├── launch_phages.sh          # SLURM submission script for phage prediction
+├── launchers/                # SLURM job submission scripts
+│   ├── launch_assembly.sh   # Assembly workflow launcher
+│   ├── launch_binning.sh    # Binning workflow launcher
+│   └── launch_phages.sh     # Phage prediction launcher
 ├── config/
 │   └── config.yml           # Main configuration file
 ├── envs/                    # Conda environment specifications
@@ -97,7 +98,7 @@ Processes raw sequencing reads to produce quality-controlled assemblies.
 
 **Launch:**
 ```bash
-sbatch launch_assembly.sh
+sbatch launchers/launch_assembly.sh
 ```
 
 **Outputs:**
@@ -125,7 +126,7 @@ Recovers MAGs from assembled contigs using multiple binning algorithms.
 
 **Launch:**
 ```bash
-sbatch launch_binning.sh
+sbatch launchers/launch_binning.sh
 ```
 
 **Key Outputs:**
@@ -147,7 +148,7 @@ Identifies viral sequences and plasmids using multiple prediction tools.
 
 **Launch:**
 ```bash
-bash launch_phages.sh
+bash launchers/launch_phages.sh
 ```
 
 **Outputs:**
@@ -163,13 +164,13 @@ bash launch_phages.sh
 
 ```bash
 # Assembly only
-sbatch launch_assembly.sh
+sbatch launchers/launch_assembly.sh
 
 # Binning only (requires assemblies)
-sbatch launch_binning.sh
+sbatch launchers/launch_binning.sh
 
 # Phage prediction only (requires prokaryotic contigs)
-bash launch_phages.sh
+bash launchers/launch_phages.sh
 ```
 
 ### Testing individual rules
