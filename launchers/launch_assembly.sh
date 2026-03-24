@@ -2,7 +2,7 @@
 
 snakemake \
   --executor slurm \
-  --jobs 100 \
+  --jobs 200 \
   --default-resources \
       slurm_partition=batch \
       mem_mb=8000 \

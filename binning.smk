@@ -50,12 +50,12 @@ include: 'rules/binning/run_bwa_prok.rule'
 include: 'rules/binning/concoct.rule'
 include: 'rules/binning/metabat2.rule'
 include: 'rules/binning/maxbin2.rule'
-include: 'rules/binning/semibin.rule'
-include: 'rules/binning/marker_genes.rule'
-include: 'rules/binning/contig_to_bin.rule'
-include: 'rules/binning/bin_refinement.rule'
-include: 'rules/binning/separate_bins.rule'
-include: 'rules/binning/dereplication.rule'
+#include: 'rules/binning/semibin.rule'
+#include: 'rules/binning/marker_genes.rule'
+#include: 'rules/binning/contig_to_bin.rule'
+#include: 'rules/binning/bin_refinement.rule'
+#include: 'rules/binning/separate_bins.rule'
+#include: 'rules/binning/dereplication.rule'
 #este no.. include: 'rules/binning/run_bat.rule'
 #include: 'rules/binning/bakta_bins.rule'
 
@@ -76,13 +76,13 @@ rule all:
         expand("{sample}/{sample}_metaG.reads.sorted.bam.bai", sample = samples),
         expand("{sample}/concoct/contig_to_bin.tsv", sample = samples),
         expand("{sample}/metabat2/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/maxbin2/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/semibin/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/magscot/markers.hmm", sample = samples),
-        expand("{sample}/magscot/contig_to_bin.tsv", sample = samples),
-        expand("{sample}/magscot/MAGScoT.refined.contig_to_bin.out", sample = samples),
-        expand("{sample}/magscot_bins", sample = samples),
-        "dereplication"
+        expand("{sample}/maxbin2/contig_to_bin.tsv", sample = samples)
+        #expand("{sample}/semibin/contig_to_bin.tsv", sample = samples),
+        #expand("{sample}/magscot/markers.hmm", sample = samples),
+        #expand("{sample}/magscot/contig_to_bin.tsv", sample = samples),
+        #expand("{sample}/magscot/MAGScoT.refined.contig_to_bin.out", sample = samples),
+        #expand("{sample}/magscot_bins", sample = samples),
+        #"dereplication"
         #este no.. expand("taxonomy/{bin_id}.BAT.done", bin_id = bin_ids),
         #expand("bakta_derep_bins/{bin_id}/{bin_id}.txt", bin_id = bin_ids)
 

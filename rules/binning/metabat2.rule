@@ -25,7 +25,7 @@ rule metabat2:
         bin_dir = directory('{sample}/metabat2/bins'),
         done = '{sample}/metabat2/metabat2.done'
     params:
-        min_contig_length = config["binning"]["min_contig_length"],
+        min_contig_length = config["metabat2"]["min_len"],
         prefix = '{sample}/metabat2/bins/bin'
     resources:
         mem_mb = config["metabat2"]["mem_mb"],

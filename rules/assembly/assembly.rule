@@ -4,9 +4,10 @@ rule megahit:
         r2 = "processed_reads/{sample}_R2.fastq.gz",
         se = "processed_reads/{sample}_SE.fastq.gz"
     output:
-        outdir = "assemblies/{sample}",
+        contigs = "assemblies/{sample}/final.contigs.fa",
         done = "assemblies/{sample}/{sample}.done"
     params:
+        outdir = "assemblies/{sample}",
         preset = config["megahit"]["preset"],
         min_contig = config["megahit"]["min_contig"],
         min_count = config["megahit"]["min_count"],
@@ -24,14 +25,14 @@ rule megahit:
     shell:
         """
 
-        rm -rf {output.outdir}
+        rm -rf {params.outdir}
 
         # Run MEGAHIT
         megahit \
             -1 {input.r1} \
             -2 {input.r2} \
             -r {input.se} \
-            -o {output.outdir} \
+            -o {params.outdir} \
             --presets {params.preset} \
             --min-contig-len {params.min_contig} \
             --min-count {params.min_count} \

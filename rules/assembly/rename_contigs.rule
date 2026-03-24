@@ -1,8 +1,9 @@
 rule rename_contigs:
     input:
-        assembly = "assemblies/{sample}/{sample}_contigs.fa"
+        assembly = "assemblies/{sample}/final.contigs.fa",
+        done = "assemblies/{sample}/{sample}.done"
     output:
-        renamed = "assemblies/{sample}/{sample}_contigs_renamed.fa"
+        renamed = "assemblies/{sample}/{sample}_contigs.fa"
     log:
         "logs/rename_contigs/{sample}.log"
     shell:

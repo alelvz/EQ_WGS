@@ -12,24 +12,20 @@ rule semibin:
     threads: config["semibin"]["threads"]
     params:
         tmpdir = config["tmp_dir"],
-        batch_size = config["semibin"]["batch_size"],
-        min_contig_length = config["binning"]["min_contig_length"],
-        environment_type = config["semibin"]["environment_type"],
+        min_contig_length = config["semibin"]["min_len"],
         output_base = '{sample}/semibin'
     conda: f"{env_dir}/semibin2_env.yml"
     log: "logs/semibin2/{sample}_semibin2.log"
     shell:
         """
-        SemiBin2 \
-        single_easy_bin \
+        SemiBin2 single_easy_bin \
         --tmpdir {params.tmpdir} \
-        --engine auto \
         -m {params.min_contig_length} \
         --input-fasta {input.fasta} \
         --input-bam {input.bam} \
-        --environment {params.environment_type} \
-        --batch-size {params.batch_size} \
+        --self-supervised \
         --output {params.output_base} \
+        --threads {threads} \
         2> {log}
 
         gunzip -f {output.bin_dir}/*.fa.gz 2>/dev/null || true

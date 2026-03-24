@@ -1,6 +1,7 @@
 rule quast:
     input:
-        assembly = "assemblies/{sample}/final.contigs.fa"
+        assembly = "assemblies/{sample}/final.contigs.fa",
+        done = "assemblies/{sample}/{sample}.done"
     output:
         report_dir = directory("assemblies/qc/{sample}"),
         report_txt = "assemblies/qc/{sample}/report.txt" 
